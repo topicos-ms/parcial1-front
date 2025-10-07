@@ -1,0 +1,207 @@
+<div class="register-container">
+  <mat-card class="register-card">
+    <mat-card-header>
+      <mat-card-title>
+        <h1>Crear Cuenta</h1>
+      </mat-card-title>
+      <mat-card-subtitle>Completa el formulario para registrarte</mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+        <!-- Personal Information Section -->
+        <div class="form-section">
+          <h3 class="section-title">Información Personal</h3>
+          
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Nombre</mat-label>
+              <input
+                matInput
+                formControlName="firstName"
+                placeholder="Juan"
+                autocomplete="given-name"
+              />
+              <mat-icon matPrefix>person</mat-icon>
+              @if (getErrorMessage('firstName')) {
+                <mat-error>{{ getErrorMessage('firstName') }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Apellido</mat-label>
+              <input
+                matInput
+                formControlName="lastName"
+                placeholder="Pérez"
+                autocomplete="family-name"
+              />
+              <mat-icon matPrefix>person</mat-icon>
+              @if (getErrorMessage('lastName')) {
+                <mat-error>{{ getErrorMessage('lastName') }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Cédula de Identidad</mat-label>
+              <input
+                matInput
+                formControlName="nationalId"
+                placeholder="12345678"
+                maxlength="8"
+                autocomplete="off"
+              />
+              <mat-icon matPrefix>badge</mat-icon>
+              @if (getErrorMessage('nationalId')) {
+                <mat-error>{{ getErrorMessage('nationalId') }}</mat-error>
+              }
+            </mat-form-field>
+
+            <mat-form-field appearance="outline" class="half-width">
+              <mat-label>Teléfono</mat-label>
+              <input
+                matInput
+                formControlName="phone"
+                placeholder="78901234"
+                maxlength="8"
+                autocomplete="tel"
+              />
+              <mat-icon matPrefix>phone</mat-icon>
+              @if (getErrorMessage('phone')) {
+                <mat-error>{{ getErrorMessage('phone') }}</mat-error>
+              }
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Fecha de Nacimiento</mat-label>
+            <input
+              matInput
+              [matDatepicker]="picker"
+              formControlName="birthDate"
+              [max]="maxDate"
+              placeholder="DD/MM/YYYY"
+            />
+            <mat-icon matPrefix>calendar_today</mat-icon>
+            <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+            <mat-datepicker #picker></mat-datepicker>
+            @if (getErrorMessage('birthDate')) {
+              <mat-error>{{ getErrorMessage('birthDate') }}</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <!-- Account Information Section -->
+        <div class="form-section">
+          <h3 class="section-title">Información de Cuenta</h3>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Correo Electrónico</mat-label>
+            <input
+              matInput
+              type="email"
+              formControlName="email"
+              placeholder="estudiante@universidad.edu"
+              autocomplete="email"
+            />
+            <mat-icon matPrefix>email</mat-icon>
+            @if (getErrorMessage('email')) {
+              <mat-error>{{ getErrorMessage('email') }}</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Contraseña</mat-label>
+            <input
+              matInput
+              [type]="hidePassword() ? 'password' : 'text'"
+              formControlName="password"
+              placeholder="Mínimo 8 caracteres"
+              autocomplete="new-password"
+            />
+            <mat-icon matPrefix>lock</mat-icon>
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="'Ocultar contraseña'"
+            >
+              <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            @if (getErrorMessage('password')) {
+              <mat-error>{{ getErrorMessage('password') }}</mat-error>
+            }
+            <mat-hint>Debe contener mayúsculas, minúsculas, números y caracteres especiales</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Confirmar Contraseña</mat-label>
+            <input
+              matInput
+              [type]="hideConfirmPassword() ? 'password' : 'text'"
+              formControlName="confirmPassword"
+              placeholder="Repite tu contraseña"
+              autocomplete="new-password"
+            />
+            <mat-icon matPrefix>lock</mat-icon>
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="toggleConfirmPasswordVisibility()"
+              [attr.aria-label]="'Ocultar contraseña'"
+            >
+              <mat-icon>{{ hideConfirmPassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            @if (getErrorMessage('confirmPassword')) {
+              <mat-error>{{ getErrorMessage('confirmPassword') }}</mat-error>
+            }
+          </mat-form-field>
+
+          @if (getFormError()) {
+            <div class="form-error">
+              <mat-icon>error_outline</mat-icon>
+              <span>{{ getFormError() }}</span>
+            </div>
+          }
+        </div>
+
+        <!-- Error Message -->
+        @if (errorMessage()) {
+          <div class="error-message">
+            <mat-icon>error_outline</mat-icon>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        <!-- Submit Button -->
+        <button
+          mat-raised-button
+          color="primary"
+          type="submit"
+          class="submit-button"
+          [disabled]="isLoading()"
+        >
+          @if (isLoading()) {
+            <mat-spinner diameter="20"></mat-spinner>
+            <span>Registrando...</span>
+          } @else {
+            <span>Crear Cuenta</span>
+          }
+        </button>
+      </form>
+    </mat-card-content>
+
+    <mat-card-footer>
+      <div class="login-link">
+        <span>¿Ya tienes una cuenta?</span>
+        <button mat-button color="primary" type="button" (click)="switchToLogin.emit()">
+          Inicia sesión aquí
+        </button>
+      </div>
+    </mat-card-footer>
+  </mat-card>
+</div>
