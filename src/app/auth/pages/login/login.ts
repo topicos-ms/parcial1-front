@@ -36,7 +36,6 @@ export class Login {
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
 
-  // Output para comunicar con el componente padre
   switchToRegister = output<void>();
 
   constructor() {

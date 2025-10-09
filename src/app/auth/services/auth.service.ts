@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 import { Router } from '@angular/router';
 import { LoginRequest, RegisterRequest, AuthResponse, User } from '../models/user.model';
-import { environment } from '../../../environments/environment';
+import { AUTH_MS_ENDPOINTS } from '@constants';
 
 @Injectable({
   providedIn: 'root'
@@ -11,10 +11,7 @@ import { environment } from '../../../environments/environment';
 export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
-  
-  private readonly apiUrl = `${environment.apiUrl}/auth`;
-  
-  // Signals para estado reactivo
+
   currentUser = signal<User | null>(null);
   isAuthenticated = signal<boolean>(false);
 
@@ -23,13 +20,13 @@ export class AuthService {
   }
 
   login(credentials: LoginRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/login`, credentials).pipe(
+    return this.http.post<AuthResponse>(AUTH_MS_ENDPOINTS.LOGIN, credentials).pipe(
       tap(response => this.handleAuthSuccess(response))
     );
   }
 
   register(userData: RegisterRequest): Observable<AuthResponse> {
-    return this.http.post<AuthResponse>(`${this.apiUrl}/register`, userData).pipe(
+    return this.http.post<AuthResponse>(AUTH_MS_ENDPOINTS.REGISTER, userData).pipe(
       tap(response => this.handleAuthSuccess(response))
     );
   }
@@ -52,7 +49,7 @@ export class AuthService {
   private loadUserFromStorage(): void {
     const token = localStorage.getItem('auth_token');
     const userStr = localStorage.getItem('current_user');
-    
+
     if (token && userStr) {
       try {
         const user = JSON.parse(userStr);
