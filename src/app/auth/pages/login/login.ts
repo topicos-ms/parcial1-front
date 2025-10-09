@@ -1,15 +1,15 @@
-import { Component, inject, output, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { Component, computed, inject, output, signal } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { CommonModule } from '@angular/common';
 import { AuthService } from '../../services/auth.service';
 import { LoginRequest } from '../../models/user.model';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -35,6 +35,9 @@ export class Login {
   hidePassword = signal(true);
   isLoading = signal(false);
   errorMessage = signal<string | null>(null);
+
+  jobAck = computed(() => this.authService.currentJobAck());
+  jobUpdate = computed(() => this.authService.currentJobUpdate());
 
   switchToRegister = output<void>();
 
@@ -67,9 +70,11 @@ export class Login {
       },
       error: (error) => {
         this.isLoading.set(false);
-        this.errorMessage.set(
-          error.error?.message || 'Error al iniciar sesión. Por favor, verifica tus credenciales.'
-        );
+        const message =
+          error instanceof Error
+            ? error.message
+            : error?.error?.message || 'Error al iniciar sesion. Por favor, verifica tus credenciales.';
+        this.errorMessage.set(message);
       }
     });
   }
@@ -82,11 +87,11 @@ export class Login {
       return 'Este campo es requerido';
     }
     if (field.hasError('email')) {
-      return 'Ingresa un email válido';
+      return 'Ingresa un email valido';
     }
     if (field.hasError('minlength')) {
       const minLength = field.getError('minlength').requiredLength;
-      return `Mínimo ${minLength} caracteres`;
+      return `Minimo ${minLength} caracteres`;
     }
     return '';
   }

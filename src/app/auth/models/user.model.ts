@@ -5,15 +5,11 @@ export enum UserRole {
 }
 
 export interface User {
-  id?: string;
+  id: string;
   email: string;
   firstName: string;
-  lastName: string;
-  role: UserRole;
-  phone?: string;
-  studentCode?: string;
-  nationalId: string;
-  birthDate: string;
+  lastName?: string;
+  role?: UserRole;
 }
 
 export interface LoginRequest {
@@ -36,4 +32,13 @@ export interface RegisterRequest {
 export interface AuthResponse {
   token: string;
   user: User;
+}
+
+export interface LoginResult {
+  token: string;
+  email: string;
+  firstName: string;
+  lastName?: string;
+  role?: UserRole;
+  id: string;
 }

@@ -1,17 +1,17 @@
-import { Component, inject, output, signal } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { CommonModule } from '@angular/common';
+import { Component, computed, inject, output, signal } from '@angular/core';
+import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { MatButtonModule } from '@angular/material/button';
+import { MatCardModule } from '@angular/material/card';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatIconModule } from '@angular/material/icon';
+import { MatInputModule } from '@angular/material/input';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AuthService } from '../../services/auth.service';
 import { RegisterRequest, UserRole } from '../../models/user.model';
-import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-register',
@@ -42,23 +42,27 @@ export class Register {
   errorMessage = signal<string | null>(null);
   maxDate = new Date();
 
-  // Output para comunicar con el componente padre
+  jobAck = computed(() => this.authService.currentJobAck());
+  jobUpdate = computed(() => this.authService.currentJobUpdate());
+
   switchToLogin = output<void>();
 
   constructor() {
-    this.registerForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
-      password: ['', [Validators.required, Validators.minLength(8), this.passwordValidator]],
-      confirmPassword: ['', [Validators.required]],
-      firstName: ['', [Validators.required, Validators.minLength(2)]],
-      lastName: ['', [Validators.required, Validators.minLength(2)]],
-      phone: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
-      nationalId: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
-      birthDate: ['', [Validators.required]]
-    }, { validators: this.passwordMatchValidator });
+    this.registerForm = this.fb.group(
+      {
+        email: ['', [Validators.required, Validators.email]],
+        password: ['', [Validators.required, Validators.minLength(8), this.passwordValidator]],
+        confirmPassword: ['', [Validators.required]],
+        firstName: ['', [Validators.required, Validators.minLength(2)]],
+        lastName: ['', [Validators.required, Validators.minLength(2)]],
+        phone: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
+        nationalId: ['', [Validators.required, Validators.pattern(/^\d{8}$/)]],
+        birthDate: ['', [Validators.required]]
+      },
+      { validators: this.passwordMatchValidator }
+    );
   }
 
-  // Validador personalizado para la contraseña
   private passwordValidator(control: any): { [key: string]: boolean } | null {
     const password = control.value;
     if (!password) return null;
@@ -72,7 +76,6 @@ export class Register {
     return valid ? null : { weakPassword: true };
   }
 
-  // Validador para verificar que las contraseñas coincidan
   private passwordMatchValidator(group: FormGroup): { [key: string]: boolean } | null {
     const password = group.get('password')?.value;
     const confirmPassword = group.get('confirmPassword')?.value;
@@ -87,7 +90,6 @@ export class Register {
     this.hideConfirmPassword.set(!this.hideConfirmPassword());
   }
 
-  // Generar studentCode: EST + año actual + primeros 4 dígitos del nationalId
   private generateStudentCode(): string {
     const nationalId = this.registerForm.get('nationalId')?.value || '';
     const year = new Date().getFullYear();
@@ -126,9 +128,11 @@ export class Register {
       },
       error: (error) => {
         this.isLoading.set(false);
-        this.errorMessage.set(
-          error.error?.message || 'Error al registrarse. Por favor, intenta nuevamente.'
-        );
+        const message =
+          error instanceof Error
+            ? error.message
+            : error?.error?.message || 'Error al registrarse. Por favor, intenta nuevamente.';
+        this.errorMessage.set(message);
       }
     });
   }
@@ -141,19 +145,19 @@ export class Register {
       return 'Este campo es requerido';
     }
     if (field.hasError('email')) {
-      return 'Ingresa un email válido';
+      return 'Ingresa un email valido';
     }
     if (field.hasError('minlength')) {
       const minLength = field.getError('minlength').requiredLength;
-      return `Mínimo ${minLength} caracteres`;
+      return `Minimo ${minLength} caracteres`;
     }
     if (field.hasError('pattern')) {
       if (fieldName === 'phone' || fieldName === 'nationalId') {
-        return 'Debe contener exactamente 8 dígitos';
+        return 'Debe contener exactamente 8 digitos';
       }
     }
     if (field.hasError('weakPassword')) {
-      return 'La contraseña debe contener mayúsculas, minúsculas, números y caracteres especiales';
+      return 'La contrasena debe contener mayusculas, minusculas, numeros y caracteres especiales';
     }
 
     return '';
@@ -161,7 +165,7 @@ export class Register {
 
   getFormError(): string {
     if (this.registerForm.hasError('passwordMismatch')) {
-      return 'Las contraseñas no coinciden';
+      return 'Las contrasenas no coinciden';
     }
     return '';
   }

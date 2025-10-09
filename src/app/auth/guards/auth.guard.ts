@@ -1,8 +1,8 @@
 import { inject } from '@angular/core';
-import { Router, type CanActivateFn } from '@angular/router';
+import { Router, type CanActivateFn, type CanActivateChildFn } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-export const authGuard: CanActivateFn = (route, state) => {
+const ensureAuthenticated = (): boolean => {
   const authService = inject(AuthService);
   const router = inject(Router);
 
@@ -14,7 +14,11 @@ export const authGuard: CanActivateFn = (route, state) => {
   return false;
 };
 
-export const publicGuard: CanActivateFn = (route, state) => {
+export const authGuard: CanActivateFn = () => ensureAuthenticated();
+
+export const authChildGuard: CanActivateChildFn = () => ensureAuthenticated();
+
+export const publicGuard: CanActivateFn = () => {
   const authService = inject(AuthService);
   const router = inject(Router);
 

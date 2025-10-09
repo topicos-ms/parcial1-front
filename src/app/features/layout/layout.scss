@@ -1,0 +1,11 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.features-content {
+  flex: 1;
+  padding: 1.5rem;
+  background: var(--features-content-bg, #f7f9fc);
+}
