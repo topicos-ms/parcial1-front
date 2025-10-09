@@ -1,0 +1,143 @@
+:host {
+  display: block;
+  padding: 1.5rem;
+}
+
+.enrollment-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.headline-icon {
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
+.header-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.term-selector {
+  min-width: 240px;
+  flex: 1 1 240px;
+}
+
+.enrollment-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #424242;
+}
+
+.info-empty {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+  color: #5f6368;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  background-color: #fdecea;
+  color: #c62828;
+}
+
+.loading-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+.sections-table {
+  width: 100%;
+  border-spacing: 0;
+}
+
+.sections-table th,
+.sections-table td {
+  padding: 0.75rem 0.5rem;
+}
+
+.course-cell {
+  display: flex;
+  flex-direction: column;
+}
+
+.course-code {
+  font-weight: 600;
+  color: #1a73e8;
+}
+
+.course-name {
+  font-size: 0.9rem;
+  color: #424242;
+}
+
+.group-chip {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.available-chip {
+  background-color: #e3f2fd;
+  color: #0d47a1;
+}
+
+.warn-text {
+  color: #c62828;
+  font-weight: 600;
+}
+
+.selection-info {
+  flex: 1;
+}
+
+.actions-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.button-spinner {
+  margin-right: 0.5rem;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 2rem 0;
+  gap: 0.5rem;
+  color: #5f6368;
+}
+
+@media (max-width: 768px) {
+  :host {
+    padding: 1rem;
+  }
+
+  .sections-table th,
+  .sections-table td {
+    padding: 0.5rem 0.35rem;
+  }
+}

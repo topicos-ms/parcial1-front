@@ -66,7 +66,7 @@ export class Login {
     this.authService.login(credentials).subscribe({
       next: () => {
         this.isLoading.set(false);
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/dashboard', 'enrollment']);
       },
       error: (error) => {
         this.isLoading.set(false);
@@ -96,3 +96,4 @@ export class Login {
     return '';
   }
 }
+

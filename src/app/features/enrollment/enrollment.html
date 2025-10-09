@@ -1,0 +1,206 @@
+<div class="enrollment-container">
+  <mat-card class="enrollment-header" appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="headline-icon">school</mat-icon>
+        Inscripcion de materias
+      </mat-card-title>
+      @if (user(); as currentUser) {
+        <mat-card-subtitle>
+          Hola, {{ currentUser.firstName }} {{ currentUser.lastName || '' }}
+        </mat-card-subtitle>
+      }
+    </mat-card-header>
+    <mat-card-content>
+      <div class="header-controls">
+        <mat-form-field appearance="outline" class="term-selector">
+          <mat-label>Periodo academico</mat-label>
+          <mat-select [value]="selectedTermId()" (valueChange)="onTermChange($event)" [disabled]="loadingTerms()">
+            @for (term of terms(); track term.id) {
+              <mat-option [value]="term.id">
+                {{ term.name }} / {{ term.status }}
+              </mat-option>
+            }
+          </mat-select>
+          @if (loadingTerms()) {
+            <mat-progress-spinner
+              matSuffix
+              diameter="20"
+              mode="indeterminate"></mat-progress-spinner>
+          }
+        </mat-form-field>
+        <button mat-stroked-button color="primary" (click)="refresh()" [disabled]="loadingData()">
+          <mat-icon>refresh</mat-icon>
+          Actualizar
+        </button>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      @if (enrollment(); as activeEnrollment) {
+        <div class="enrollment-info">
+          <div class="info-item">
+            <mat-icon matTooltip="Identificador de la inscripcion">description</mat-icon>
+            <span>Inscripcion: <strong>{{ activeEnrollment.id | slice:0:8 }}</strong></span>
+          </div>
+          <div class="info-item">
+            <mat-icon>calendar_month</mat-icon>
+            <span>{{ currentTerm()?.name || 'Sin periodo' }}</span>
+          </div>
+          <div class="info-item">
+            <mat-icon>fact_check</mat-icon>
+            <span>{{ enrolledCount() }} materias inscritas</span>
+          </div>
+        </div>
+      }
+      @else {
+        <div class="info-empty">
+          <mat-icon color="warn">info</mat-icon>
+          <span>No se encontro una inscripcion activa para este periodo.</span>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  <mat-card class="enrollment-body" appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>Oferta de materias</mat-card-title>
+      <mat-card-subtitle>
+        Selecciona los grupos disponibles y confirma tu inscripcion.
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      @if (errorMessage(); as error) {
+        <div class="error-banner">
+          <mat-icon color="warn">error</mat-icon>
+          <span>{{ error }}</span>
+        </div>
+      }
+
+      @if (loadingData()) {
+        <div class="loading-wrapper">
+          <mat-progress-spinner diameter="48" mode="indeterminate"></mat-progress-spinner>
+        </div>
+      }
+      @else {
+        @if (sections().length) {
+          <table mat-table [dataSource]="sections()" class="sections-table">
+            <ng-container matColumnDef="select">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let view">
+                <mat-checkbox
+                  color="primary"
+                  [disabled]="!isSelectable(view)"
+                  [checked]="isSelected(view.section.id)"
+                  (change)="toggleSection(view)">
+                </mat-checkbox>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="course">
+              <th mat-header-cell *matHeaderCellDef>Materia</th>
+              <td mat-cell *matCellDef="let view">
+                <div class="course-cell">
+                  <span class="course-code">{{ view.course?.code ?? (view.section.course_id | slice:0:8) }}</span>
+                  <span class="course-name">{{ view.course?.name ?? 'Sin nombre' }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="group">
+              <th mat-header-cell *matHeaderCellDef>Grupo</th>
+              <td mat-cell *matCellDef="let view">
+                <div class="group-chip">
+                  <mat-chip color="primary" selected>{{ view.section.group_label }}</mat-chip>
+                  <span>{{ view.section.modality }} / {{ view.section.shift }}</span>
+                </div>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="schedule">
+              <th mat-header-cell *matHeaderCellDef>Horario</th>
+              <td mat-cell *matCellDef="let view">
+                {{ view.scheduleLabel }}
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="quota">
+              <th mat-header-cell *matHeaderCellDef>Cupos</th>
+              <td mat-cell *matCellDef="let view">
+                <span [class.warn-text]="!view.hasQuota">
+                  {{ view.section.quota_available }} / {{ view.section.quota_max }}
+                </span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Estado</th>
+              <td mat-cell *matCellDef="let view">
+                @if (view.isAlreadyEnrolled) {
+                  <mat-chip color="accent" selected>
+                    <mat-icon>check_circle</mat-icon>
+                    Inscrita
+                  </mat-chip>
+                }
+                @else if (!view.hasQuota) {
+                  <mat-chip color="warn" selected>
+                    <mat-icon>block</mat-icon>
+                    Sin cupos
+                  </mat-chip>
+                }
+                @else {
+                  <mat-chip color="primary" selected class="available-chip">
+                    <mat-icon>event_available</mat-icon>
+                    Disponible
+                  </mat-chip>
+                }
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+          </table>
+        }
+        @else {
+          <div class="empty-state">
+            <mat-icon>fact_check</mat-icon>
+            <p>No se encontraron materias disponibles para el periodo seleccionado.</p>
+          </div>
+        }
+      }
+    </mat-card-content>
+
+    <mat-divider></mat-divider>
+
+    <mat-card-actions align="end">
+      <div class="selection-info">
+        @if (selectedCount() > 0) {
+          <mat-chip color="primary" selected>
+            {{ selectedCount() }} seleccionada(s)
+          </mat-chip>
+        }
+      </div>
+      <div class="actions-group">
+        <button mat-button (click)="clearSelection()" [disabled]="selectedCount() === 0 || submitting()">
+          Limpiar seleccion
+        </button>
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="submitSelection()"
+          [disabled]="!canSubmit()"
+          [attr.aria-busy]="submitting()">
+          @if (submitting()) {
+            <mat-progress-spinner
+              diameter="18"
+              mode="indeterminate"
+              class="button-spinner"></mat-progress-spinner>
+          }
+          <span>Inscribir</span>
+        </button>
+      </div>
+    </mat-card-actions>
+  </mat-card>
+</div>
+
