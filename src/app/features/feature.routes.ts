@@ -16,7 +16,24 @@ export const featureRoutes: Routes = [
       {
         path: 'enrollment',
         loadComponent: () =>
-          import('./enrollment/enrollment').then((m) => m.EnrollmentPage)
+          import('./enrollment/enrollment').then((m) => m.EnrollmentPage),
+        children: [
+          {
+            path: '',
+            redirectTo: 'courses',
+            pathMatch: 'full'
+          },
+          {
+            path: 'courses',
+            loadComponent: () =>
+              import('./enrollment/offered-courses/offered-courses').then((m) => m.OfferedCoursesPage)
+          },
+          {
+            path: 'schedules',
+            loadComponent: () =>
+              import('./enrollment/schedules/schedules').then((m) => m.SchedulesPage)
+          }
+        ]
       },
       {
         path: 'dashboard',

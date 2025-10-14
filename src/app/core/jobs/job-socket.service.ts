@@ -16,6 +16,7 @@ export class JobSocketService implements OnDestroy {
     const normalizedBaseUrl = baseUrl.replace(/\/+$/, '');
 
     if (this.socket?.connected && this.currentBaseUrl === normalizedBaseUrl) {
+      console.log('[JobSocketService] Ya conectado a:', normalizedBaseUrl);
       return;
     }
 
@@ -24,16 +25,29 @@ export class JobSocketService implements OnDestroy {
     }
 
     this.currentBaseUrl = normalizedBaseUrl;
-    this.socket = io(`${normalizedBaseUrl}${this.namespace}`, {
+    const socketUrl = `${normalizedBaseUrl}${this.namespace}`;
+    console.log('[JobSocketService] Conectando a:', socketUrl);
+    
+    this.socket = io(socketUrl, {
       transports: ['websocket'],
       withCredentials: true
     });
 
+    this.socket.on('connect', () => {
+      console.log('[JobSocketService] ✅ WebSocket conectado');
+    });
+
+    this.socket.on('disconnect', () => {
+      console.log('[JobSocketService] ❌ WebSocket desconectado');
+    });
+
     this.socket.on('job-update', (update: JobUpdate) => {
+      console.log('[JobSocketService] 📡 job-update recibido:', update);
       this.updates$.next(update);
     });
 
     this.socket.on('job-status-response', (payload: { jobId: string; status: JobUpdate | null }) => {
+      console.log('[JobSocketService] 📡 job-status-response recibido:', payload);
       if (payload.status) {
         this.updates$.next(payload.status);
       }
@@ -49,14 +63,17 @@ export class JobSocketService implements OnDestroy {
   }
 
   subscribeToJob(jobId: string): void {
+    console.log('[JobSocketService] 📤 Suscribiéndose al job:', jobId);
     this.socket?.emit('subscribe', { jobId });
   }
 
   unsubscribeFromJob(jobId: string): void {
+    console.log('[JobSocketService] 📤 Desuscribiéndose del job:', jobId);
     this.socket?.emit('unsubscribe', { jobId });
   }
 
   requestJobStatus(jobId: string): void {
+    console.log('[JobSocketService] 📤 Solicitando estado del job:', jobId);
     this.socket?.emit('status', { jobId });
   }
 

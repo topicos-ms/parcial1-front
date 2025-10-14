@@ -124,6 +124,43 @@ export interface CourseSectionViewModel {
   isAlreadyEnrolled: boolean;
   hasQuota: boolean;
   scheduleLabel: string;
+  recommended?: RecommendedCourseDto | null;
+}
+
+export interface RecommendedCoursePrerequisite {
+  courseId: string;
+  code: string | null;
+  name: string | null;
+}
+
+export interface RecommendedCourseDto {
+  courseId: string;
+  code: string;
+  name: string;
+  credits: number;
+  levelId: string | null;
+  levelName: string | null;
+  levelOrder: number | null;
+  prerequisites: RecommendedCoursePrerequisite[];
+}
+
+export interface RecommendedCoursesResponse {
+  student: {
+    id: string;
+    code: string;
+    studyPlanId: string;
+  };
+  studyPlan: {
+    id: string;
+    version: string;
+    degreeProgramId: string;
+  };
+  targetLevel: {
+    id: string | null;
+    name: string | null;
+    order: number | null;
+  };
+  courses: RecommendedCourseDto[];
 }
 
 

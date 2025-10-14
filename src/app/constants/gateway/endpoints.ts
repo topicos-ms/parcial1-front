@@ -17,5 +17,8 @@ export const GATEWAY_ENDPOINTS = {
     JOB_STATUS: (jobId: Identifier) => buildApiPath('queues', 'job', String(jobId), 'status'),
     COMPLETED: buildApiPath('queues', 'completed'),
     FAILED: buildApiPath('queues', 'failed')
+  },
+  STUDENTS: {
+    RECOMMENDED_COURSES: buildApiPath('students', 'recommended-courses')
   }
 } as const;
