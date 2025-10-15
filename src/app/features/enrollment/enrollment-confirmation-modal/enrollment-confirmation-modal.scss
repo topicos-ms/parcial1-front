@@ -1,0 +1,50 @@
+.modal-container {
+  padding: 1rem;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+
+  .info-icon {
+    font-size: 2rem;
+    width: 2rem;
+    height: 2rem;
+    color: #2196f3;
+  }
+
+  h2 {
+    margin: 0;
+  }
+}
+
+mat-dialog-content {
+  .message {
+    font-size: 1rem;
+    margin-bottom: 0.5rem;
+    color: rgba(0, 0, 0, 0.87);
+  }
+
+  .submessage {
+    font-size: 0.95rem;
+    color: rgba(0, 0, 0, 0.6);
+
+    .link {
+      color: #2196f3;
+      cursor: pointer;
+      text-decoration: underline;
+      font-weight: 500;
+
+      &:hover {
+        color: #1976d2;
+      }
+    }
+  }
+}
+
+mat-dialog-actions {
+  margin-top: 1rem;
+  gap: 0.5rem;
+}

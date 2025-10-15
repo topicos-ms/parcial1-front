@@ -1,0 +1,23 @@
+<div class="modal-container">
+    <div class="modal-header">
+        <mat-icon class="info-icon">info</mat-icon>
+        <h2 mat-dialog-title>Procesando Inscripción</h2>
+    </div>
+
+    <mat-dialog-content>
+        <p class="message">
+            Tu solicitud de inscripción está siendo procesada.
+        </p>
+        <p class="submessage">
+            Consulta el estado de tu inscripción
+            <a class="link" (click)="navigateToStatus()">aquí</a>
+        </p>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+        <button mat-button (click)="close()">Cerrar</button>
+        <button mat-raised-button color="primary" (click)="navigateToStatus()">
+            Ver Estado
+        </button>
+    </mat-dialog-actions>
+</div>

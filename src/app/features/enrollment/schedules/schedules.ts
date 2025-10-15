@@ -35,7 +35,6 @@ interface CourseWithSections {
 
 @Component({
   selector: 'app-schedules',
-  standalone: true,
   imports: [
     CommonModule,
     MatCardModule,

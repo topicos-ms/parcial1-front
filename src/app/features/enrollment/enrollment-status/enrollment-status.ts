@@ -14,7 +14,6 @@ import { EnrollmentStateService } from '../enrollment-state.service';
  */
 @Component({
   selector: 'app-enrollment-status',
-  standalone: true,
   imports: [
     CommonModule,
     MatCardModule,

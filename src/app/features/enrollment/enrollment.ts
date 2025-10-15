@@ -25,7 +25,6 @@ import { RecommendedCoursesResponse } from './enrollment.models';
 
 @Component({
   selector: 'app-enrollment',
-  standalone: true,
   imports: [
     CommonModule,
     RouterModule,

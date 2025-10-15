@@ -19,7 +19,6 @@ import { EnrollmentStateService } from '../enrollment-state.service';
 
 @Component({
   selector: 'app-offered-courses',
-  standalone: true,
   imports: [
     CommonModule,
     MatCardModule,
