@@ -18,10 +18,12 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { EnrollmentDataService } from '../enrollment-data.service';
 import { CourseSectionDto, RecommendedCourseDto } from '../enrollment.models';
 import { EnrollmentStateService } from '../enrollment-state.service';
+import { EnrollmentConfirmationModal } from '../enrollment-confirmation-modal/enrollment-confirmation-modal';
 
 interface CourseWithSections {
   course: RecommendedCourseDto;
@@ -43,7 +45,8 @@ interface CourseWithSections {
     MatRadioModule,
     MatChipsModule,
     MatSnackBarModule,
-    MatDividerModule
+    MatDividerModule,
+    MatDialogModule
   ],
   templateUrl: './schedules.html',
   styleUrl: './schedules.scss',
@@ -55,6 +58,7 @@ export class SchedulesPage implements OnInit {
   private readonly router = inject(Router);
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly dialog = inject(MatDialog);
 
   readonly selectedCourses = this.stateService.selectedCourses;
   readonly coursesWithSections = signal<CourseWithSections[]>([]);
@@ -166,7 +170,12 @@ export class SchedulesPage implements OnInit {
         next: (enrollments) => {
           if (!enrollments.data || enrollments.data.length === 0) {
             this.enrolling.set(false);
-            this.showMessage('No tienes una inscripción activa');
+            this.stateService.setEnrollmentStatus({
+              success: false,
+              message: 'No tienes una inscripción activa',
+              errorCode: 'NO_ACTIVE_ENROLLMENT'
+            });
+            this.openStatusModal();
             return;
           }
 
@@ -180,7 +189,12 @@ export class SchedulesPage implements OnInit {
 
           if (selectedSections.length === 0) {
             this.enrolling.set(false);
-            this.showMessage('No hay materias con grupos seleccionados');
+            this.stateService.setEnrollmentStatus({
+              success: false,
+              message: 'No hay materias con grupos seleccionados',
+              errorCode: 'NO_SECTIONS_SELECTED'
+            });
+            this.openStatusModal();
             return;
           }
 
@@ -195,20 +209,89 @@ export class SchedulesPage implements OnInit {
             .subscribe({
               next: (response) => {
                 this.enrolling.set(false);
-                this.showMessage('Inscripción realizada exitosamente');
-                this.router.navigate(['/dashboard/enrollment']);
+                
+                // Verificar si la respuesta indica éxito o error
+                if (response && typeof response === 'object') {
+                  if ('success' in response && response.success === false) {
+                    // Error del backend
+                    this.stateService.setEnrollmentStatus({
+                      success: false,
+                      message: response.message || 'Error al procesar la inscripción',
+                      errorCode: response.error?.code,
+                      details: response.error?.details
+                    });
+                  } else {
+                    // Éxito
+                    this.stateService.setEnrollmentStatus({
+                      success: true,
+                      message: response.message || 'Inscripción realizada exitosamente'
+                    });
+                  }
+                } else {
+                  // Respuesta inesperada, asumir éxito
+                  this.stateService.setEnrollmentStatus({
+                    success: true,
+                    message: 'Inscripción realizada exitosamente'
+                  });
+                }
+                
+                // Mostrar modal con el estado
+                this.openStatusModal();
               },
               error: (error) => {
                 this.enrolling.set(false);
-                this.showMessage('Error al inscribir las materias');
+                
+                // Extraer mensaje de error
+                let errorMessage = 'Error al inscribir las materias';
+                let errorCode = 'UNKNOWN_ERROR';
+                let errorDetails = null;
+
+                if (error && typeof error === 'object') {
+                  if ('message' in error && typeof error.message === 'string') {
+                    errorMessage = error.message;
+                  }
+                  if ('error' in error && error.error) {
+                    const err = error.error;
+                    if ('code' in err) errorCode = err.code;
+                    if ('details' in err) errorDetails = err.details;
+                    if ('message' in err && typeof err.message === 'string') {
+                      errorMessage = err.message;
+                    }
+                  }
+                }
+
+                this.stateService.setEnrollmentStatus({
+                  success: false,
+                  message: errorMessage,
+                  errorCode,
+                  details: errorDetails
+                });
+                
+                // Mostrar modal con el error
+                this.openStatusModal();
               }
             });
         },
         error: (error) => {
           this.enrolling.set(false);
-          this.showMessage('Error al obtener la inscripción activa');
+          this.stateService.setEnrollmentStatus({
+            success: false,
+            message: 'Error al obtener la inscripción activa',
+            errorCode: 'ENROLLMENT_FETCH_ERROR'
+          });
+          this.openStatusModal();
         }
       });
+  }
+
+  /**
+   * Abre el modal para consultar el estado de inscripción
+   */
+  private openStatusModal(): void {
+    this.dialog.open(EnrollmentConfirmationModal, {
+      width: '500px',
+      disableClose: false
+    });
   }
 
   private showMessage(message: string): void {

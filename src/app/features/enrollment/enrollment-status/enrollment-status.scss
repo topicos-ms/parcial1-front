@@ -1,0 +1,99 @@
+.enrollment-status-container {
+  padding: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+
+  mat-card {
+    padding: 2rem;
+
+    &.success {
+      border-left: 4px solid #4caf50;
+    }
+
+    &.error {
+      border-left: 4px solid #f44336;
+    }
+  }
+
+  .status-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    width: 100%;
+
+    mat-icon {
+      font-size: 3rem;
+      width: 3rem;
+      height: 3rem;
+
+      &.success-icon {
+        color: #4caf50;
+      }
+
+      &.error-icon {
+        color: #f44336;
+      }
+    }
+
+    mat-card-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+  }
+
+  .status-message {
+    padding: 2rem 0;
+
+    .main-message {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+      color: rgba(0, 0, 0, 0.87);
+    }
+
+    .error-details,
+    .additional-details {
+      margin-top: 1rem;
+      padding: 1rem;
+      background-color: rgba(0, 0, 0, 0.04);
+      border-radius: 4px;
+
+      p {
+        margin: 0.5rem 0;
+      }
+
+      pre {
+        margin: 0.5rem 0;
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  .status-actions {
+    display: flex;
+    justify-content: center;
+    padding-top: 1rem;
+
+    button {
+      min-width: 200px;
+    }
+  }
+
+  .loading-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 3rem;
+    gap: 1rem;
+
+    p {
+      color: rgba(0, 0, 0, 0.6);
+    }
+  }
+}
+
+mat-divider {
+  margin: 1rem 0;
+}

@@ -32,6 +32,11 @@ export const featureRoutes: Routes = [
             path: 'schedules',
             loadComponent: () =>
               import('./enrollment/schedules/schedules').then((m) => m.SchedulesPage)
+          },
+          {
+            path: 'status',
+            loadComponent: () =>
+              import('./enrollment/enrollment-status/enrollment-status').then((m) => m.EnrollmentStatusPage)
           }
         ]
       },
