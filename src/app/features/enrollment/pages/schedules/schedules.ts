@@ -20,10 +20,10 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
-import { EnrollmentDataService } from '../enrollment-data.service';
-import { CourseSectionDto, RecommendedCourseDto } from '../enrollment.models';
-import { EnrollmentStateService } from '../enrollment-state.service';
-import { EnrollmentConfirmationModal } from '../enrollment-confirmation-modal/enrollment-confirmation-modal';
+import { EnrollmentDataService } from '../../enrollment-data.service';
+import { CourseSectionDto, RecommendedCourseDto } from '../../enrollment.models';
+import { EnrollmentStateService } from '../../enrollment-state.service';
+import { EnrollmentConfirmationModal } from '../../components/enrollment-confirmation-modal/enrollment-confirmation-modal';
 
 interface CourseWithSections {
   course: RecommendedCourseDto;

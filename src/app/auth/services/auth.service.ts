@@ -27,7 +27,6 @@ export class AuthService {
   }
 
   login(credentials: LoginRequest): Observable<LoginResult> {
-    console.log('[AuthService] login -> enviando credenciales', credentials);
     return this.executeAuthJob<LoginResult>(AUTH_MS_ENDPOINTS.LOGIN, credentials).pipe(
       tap((response) => this.persistSession(response))
     );
@@ -66,7 +65,6 @@ export class AuthService {
     this.ensureSocketConnection();
     this.subscribeToJob(ack.jobId);
 
-    console.log('[AuthService] seguimiento de job -> suscrito al job', ack.jobId);
   }
 
   private awaitJobResult<T>(ack: JobAck): Observable<T> {
@@ -75,12 +73,10 @@ export class AuthService {
     }
 
     const jobId = ack.jobId;
-    console.log('[AuthService] seguimiento de job -> esperando actualizaciones', jobId);
 
     return this.jobSocket.jobUpdates().pipe(
       filter((update) => update.jobId === jobId),
       tap((update) => {
-        console.log('[AuthService] websocket -> job update recibido', update);
         this.currentJobUpdate.set(update);
       }),
       filter((update) => update.status === 'completed' || update.status === 'failed'),

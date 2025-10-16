@@ -1,11 +1,24 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { Observable, of, switchMap, throwError } from 'rxjs';
-import { filter, finalize, map, take } from 'rxjs/operators';
-import { ENROLLMENTS_MS_ENDPOINTS, TEACHING_MS_ENDPOINTS, API_BASE_URL, GATEWAY_ENDPOINTS } from '@constants';
+import { filter, finalize, map, take, tap } from 'rxjs/operators';
+import {
+  ENROLLMENTS_MS_ENDPOINTS,
+  TEACHING_MS_ENDPOINTS,
+  API_BASE_URL,
+  GATEWAY_ENDPOINTS,
+} from '@constants';
 import { JobSocketService } from '../../core/jobs/job-socket.service';
 import { JobAck } from '../../core/jobs/job.models';
-import { RecommendedCoursesResponse } from './enrollment.models';
+import {
+  EnrollmentBatchRequest,
+  EnrollmentBatchResponse,
+  EnrollmentDetailDto,
+  EnrollmentDto,
+  PaginatedResponse,
+  RecommendedCoursesResponse,
+  ScheduleDto,
+} from './enrollment.models';
 
 @Injectable({ providedIn: 'root' })
 export class EnrollmentDataService {
@@ -16,7 +29,7 @@ export class EnrollmentDataService {
   private socketReady = false;
 
   /**
-   * Obtiene las materias recomendadas para un estudiante
+   * Obtiene la inscripcion activa de un estudiante
    */
   getRecommendedCourses(studentId: string): Observable<RecommendedCoursesResponse> {
     if (!studentId) {
@@ -52,32 +65,88 @@ export class EnrollmentDataService {
   }
 
   /**
-   * Obtiene la inscripción activa de un estudiante
+   * Obtiene la inscripcion activa de un estudiante
    */
-  getActiveEnrollment(studentId: string): Observable<any> {
+  getActiveEnrollment(studentId: string): Observable<PaginatedResponse<EnrollmentDto>> {
     const params = this.createParams({
       student_id: studentId,
       state: 'Active'
     });
 
-    return this.executeQueueJob<any>(
-      this.http.get<any>(ENROLLMENTS_MS_ENDPOINTS.ENROLLMENTS.ROOT, { params })
+    console.log('[EnrollmentDataService] (Inscripcion) GET /enrollments', params);
+
+    return this.executeQueueJob<PaginatedResponse<EnrollmentDto>>(
+      this.http.get<PaginatedResponse<EnrollmentDto>>(ENROLLMENTS_MS_ENDPOINTS.ENROLLMENTS.ROOT, { params })
+    ).pipe(
+      tap((response) => {
+        console.log('[EnrollmentDataService] (Inscripcion) Respuesta /enrollments', response);
+      })
     );
   }
 
   /**
-   * Inscribe múltiples materias en lote
+   * Inscribe multiples materias en lote
    */
-  enrollBatch(request: { items: Array<{ enrollment_id: string; course_section_id: string }> }): Observable<any> {
+  enrollBatch(request: EnrollmentBatchRequest): Observable<EnrollmentBatchResponse> {
     const headers = new HttpHeaders({ 'X-Idempotency-Key': this.generateIdempotencyKey() });
 
-    return this.executeQueueJob<any>(
-      this.http.post<any>(ENROLLMENTS_MS_ENDPOINTS.ATOMIC_ENROLLMENT.ENROLL_BATCH, request, { headers })
+    return this.executeQueueJob<EnrollmentBatchResponse>(
+      this.http.post<EnrollmentBatchResponse>(ENROLLMENTS_MS_ENDPOINTS.ATOMIC_ENROLLMENT.ENROLL_BATCH, request, { headers })
+    );
+  }
+
+  listEnrollmentDetailsByEnrollment(
+    enrollmentId: string,
+  ): Observable<PaginatedResponse<EnrollmentDetailDto>> {
+    const params = this.createParams({
+      enrollment_id: enrollmentId,
+      limit: 50,
+      page: 1,
+    });
+
+    console.log('[EnrollmentDataService] (Detalles) GET /enrollment-details', params);
+
+    return this.executeQueueJob<PaginatedResponse<EnrollmentDetailDto>>(
+      this.http.get<PaginatedResponse<EnrollmentDetailDto>>(
+        ENROLLMENTS_MS_ENDPOINTS.ENROLLMENT_DETAILS.ROOT,
+        { params },
+      ),
+    ).pipe(
+      tap((response) => {
+        console.log('[EnrollmentDataService] (Detalles) Respuesta /enrollment-details', response);
+      }),
+    );
+  }
+
+  getSchedulesByCourseSection(courseSectionId: string): Observable<PaginatedResponse<ScheduleDto>> {
+    const params = this.createParams({
+      course_section_id: courseSectionId,
+      page: 1,
+      limit: 20
+    });
+
+    console.log('[EnrollmentDataService] (Horarios) GET /schedules', params);
+
+    return this.executeQueueJob<PaginatedResponse<ScheduleDto>>(
+      this.http.get<PaginatedResponse<ScheduleDto>>(TEACHING_MS_ENDPOINTS.SCHEDULES.ROOT, { params })
+    ).pipe(
+      tap((response) => {
+        console.log(
+          '[EnrollmentDataService] (Horarios) Respuesta /schedules',
+          courseSectionId,
+          response
+        );
+      })
     );
   }
 
   private executeQueueJob<T>(request$: Observable<any>): Observable<T> {
     return request$.pipe(
+      tap((initialResponse) => {
+        if (initialResponse && typeof initialResponse === 'object' && 'jobId' in initialResponse) {
+          console.log('[EnrollmentDataService] (Job) ACK recibido', initialResponse);
+        }
+      }),
       switchMap((response) => {
         if (response && typeof response === 'object' && 'jobId' in response) {
           const ack = response as JobAck;
@@ -92,20 +161,24 @@ export class EnrollmentDataService {
   }
 
   private waitForJobResult<T>(jobId: string): Observable<T> {
-    console.log('[EnrollmentDataService] Esperando resultado del job:', jobId);
     this.ensureSocket();
     this.jobSocket.subscribeToJob(jobId);
     this.jobSocket.requestJobStatus(jobId);
     this.activeJobs.add(jobId);
+    console.log('[EnrollmentDataService] (Job) Esperando resultado', jobId);
 
     return this.jobSocket.jobUpdates().pipe(
       filter((update) => {
-        console.log('[EnrollmentDataService] Job update recibido:', update);
-        return update.jobId === jobId;
+        const matches = update.jobId === jobId;
+        if (!matches) {
+          console.log('[EnrollmentDataService] (Job) Ignorando update de otro job', update);
+        }
+        return matches;
       }),
       filter((update) => {
-        console.log('[EnrollmentDataService] Job estado:', update.status);
-        return update.status === 'completed' || update.status === 'failed';
+        const isTerminal = update.status === 'completed' || update.status === 'failed';
+        console.log('[EnrollmentDataService] (Job) Update recibido', update);
+        return isTerminal;
       }),
       take(1),
       switchMap((update) => {
@@ -123,7 +196,6 @@ export class EnrollmentDataService {
 
   private ensureSocket(): void {
     if (!this.socketReady) {
-      console.log('[EnrollmentDataService] Conectando WebSocket a:', API_BASE_URL);
       this.jobSocket.connect(API_BASE_URL);
       this.socketReady = true;
     }

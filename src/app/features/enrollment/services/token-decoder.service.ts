@@ -41,7 +41,6 @@ export class TokenDecoderService {
       const decoded = this.decodeJwt(token);
       return decoded?.id ?? decoded?.sub ?? null;
     } catch (error) {
-      console.error('[TokenDecoderService] Error al decodificar token:', error);
       return null;
     }
   }

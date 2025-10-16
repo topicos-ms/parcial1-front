@@ -14,8 +14,8 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatChipsModule } from '@angular/material/chips';
 import { SelectionModel } from '@angular/cdk/collections';
 
-import { RecommendedCourseDto } from '../enrollment.models';
-import { EnrollmentStateService } from '../enrollment-state.service';
+import { RecommendedCourseDto } from '../../enrollment.models';
+import { EnrollmentStateService } from '../../enrollment-state.service';
 
 @Component({
   selector: 'app-offered-courses',

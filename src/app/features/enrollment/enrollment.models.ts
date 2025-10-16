@@ -49,6 +49,7 @@ export interface CourseSectionDto {
   quota_available: number;
   status: string;
   schedules?: ScheduleDto[];
+  course?: CourseDto | null;
 }
 
 export interface EnrollmentDetailDto {
@@ -59,6 +60,7 @@ export interface EnrollmentDetailDto {
   final_grade?: number | null;
   remark?: string | null;
   course_section?: CourseSectionDto;
+  courseSection?: CourseSectionDto;
 }
 
 export interface EnrollmentDto {
@@ -72,6 +74,18 @@ export interface EnrollmentDto {
   student?: StudentSummaryDto;
   term?: TermDto;
   enrollment_details?: EnrollmentDetailDto[];
+}
+
+export interface EnrollmentScheduleItem {
+  detailId: string;
+  courseSectionId: string;
+  courseId: string | null;
+  courseCode: string;
+  courseName: string;
+  groupLabel: string;
+  modality: string;
+  shift: string;
+  schedules: ScheduleDto[];
 }
 
 export interface CourseDto {
@@ -111,6 +125,11 @@ export interface EnrollmentBatchResponse {
       processed: number;
     };
     isNewOperation: boolean;
+  };
+  error?: {
+    code?: string;
+    message?: string;
+    details?: unknown;
   };
   idempotency?: {
     key: string;

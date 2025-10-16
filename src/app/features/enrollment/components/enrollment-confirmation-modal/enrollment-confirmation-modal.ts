@@ -25,6 +25,7 @@ export class EnrollmentConfirmationModal {
   }
 
   navigateToStatus(): void {
+    console.log('[EnrollmentStatus] Boton "Ver estado" presionado');
     this.dialogRef.close();
     this.router.navigate(['/dashboard/enrollment/status']);
   }
