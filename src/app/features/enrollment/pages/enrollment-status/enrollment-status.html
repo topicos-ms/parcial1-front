@@ -15,19 +15,6 @@
 
         <div class="status-message">
           <p class="main-message">{{ status.message }}</p>
-
-          @if (status.errorCode) {
-            <div class="error-details">
-              <p><strong>Codigo de error:</strong> {{ status.errorCode }}</p>
-            </div>
-          }
-
-          @if (status.details) {
-            <div class="additional-details">
-              <p><strong>Detalles adicionales:</strong></p>
-              <pre>{{ status.details | json }}</pre>
-            </div>
-          }
         </div>
 
         @if (status.success) {
