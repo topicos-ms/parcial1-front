@@ -18,7 +18,7 @@ import { MatRadioModule } from '@angular/material/radio';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatDialog, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
 
 import { EnrollmentDataService } from '../../enrollment-data.service';
 import { CourseSectionDto, RecommendedCourseDto } from '../../enrollment.models';
@@ -58,6 +58,7 @@ export class SchedulesPage implements OnInit {
   private readonly snackBar = inject(MatSnackBar);
   private readonly destroyRef = inject(DestroyRef);
   private readonly dialog = inject(MatDialog);
+  private statusDialogRef: MatDialogRef<EnrollmentConfirmationModal> | null = null;
 
   readonly selectedCourses = this.stateService.selectedCourses;
   readonly coursesWithSections = signal<CourseWithSections[]>([]);
@@ -159,7 +160,9 @@ export class SchedulesPage implements OnInit {
       return;
     }
 
+    this.stateService.clearEnrollmentStatus();
     this.enrolling.set(true);
+    this.openStatusModal();
 
     // Primero obtener el enrollment activo
     this.dataService
@@ -287,10 +290,21 @@ export class SchedulesPage implements OnInit {
    * Abre el modal para consultar el estado de inscripción
    */
   private openStatusModal(): void {
-    this.dialog.open(EnrollmentConfirmationModal, {
+    if (this.statusDialogRef) {
+      return;
+    }
+
+    this.statusDialogRef = this.dialog.open(EnrollmentConfirmationModal, {
       width: '500px',
       disableClose: false
     });
+
+    this.statusDialogRef
+      .afterClosed()
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => {
+        this.statusDialogRef = null;
+      });
   }
 
   private showMessage(message: string): void {
