@@ -160,6 +160,7 @@ export class SchedulesPage implements OnInit {
       return;
     }
 
+    this.dataService.resetJobTracking();
     this.stateService.clearEnrollmentStatus();
     this.enrolling.set(true);
     this.openStatusModal();

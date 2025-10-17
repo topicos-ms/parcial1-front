@@ -1,4 +1,10 @@
-export type JobStatus = 'queued' | 'processing' | 'completed' | 'failed' | 'progress';
+export type JobStatus =
+  | 'queued'
+  | 'processing'
+  | 'completed'
+  | 'failed'
+  | 'progress'
+  | 'delayed';
 
 export interface JobUpdate {
   jobId: string;

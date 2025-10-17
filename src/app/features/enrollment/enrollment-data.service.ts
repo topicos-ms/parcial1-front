@@ -1,6 +1,6 @@
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
-import { Observable, of, switchMap, throwError } from 'rxjs';
+import { BehaviorSubject, Observable, of, switchMap, throwError } from 'rxjs';
 import { filter, finalize, map, take, tap } from 'rxjs/operators';
 import {
   ENROLLMENTS_MS_ENDPOINTS,
@@ -9,7 +9,7 @@ import {
   GATEWAY_ENDPOINTS,
 } from '@constants';
 import { JobSocketService } from '../../core/jobs/job-socket.service';
-import { JobAck } from '../../core/jobs/job.models';
+import { JobAck, JobUpdate } from '../../core/jobs/job.models';
 import {
   EnrollmentBatchRequest,
   EnrollmentBatchResponse,
@@ -27,6 +27,8 @@ export class EnrollmentDataService {
 
   private readonly activeJobs = new Set<string>();
   private socketReady = false;
+  private readonly currentJobAckSubject = new BehaviorSubject<JobAck | null>(null);
+  private readonly jobStatusSubject = new BehaviorSubject<JobUpdate | null>(null);
 
   /**
    * Obtiene la inscripcion activa de un estudiante
@@ -95,6 +97,36 @@ export class EnrollmentDataService {
     );
   }
 
+  /**
+   * Limpia cualquier informacion previa del job en curso.
+   */
+  resetJobTracking(): void {
+    this.currentJobAckSubject.next(null);
+    this.jobStatusSubject.next(null);
+  }
+
+  /**
+   * Devuelve el ACK actual del job (si existe).
+   */
+  getCurrentJobAck(): Observable<JobAck | null> {
+    return this.currentJobAckSubject.asObservable();
+  }
+
+  getCurrentJobAckSnapshot(): JobAck | null {
+    return this.currentJobAckSubject.value;
+  }
+
+  /**
+   * Devuelve los updates de estado de la cola para el job actual.
+   */
+  getJobStatusUpdates(): Observable<JobUpdate | null> {
+    return this.jobStatusSubject.asObservable();
+  }
+
+  getCurrentJobStatusSnapshot(): JobUpdate | null {
+    return this.jobStatusSubject.value;
+  }
+
   listEnrollmentDetailsByEnrollment(
     enrollmentId: string,
   ): Observable<PaginatedResponse<EnrollmentDetailDto>> {
@@ -153,6 +185,7 @@ export class EnrollmentDataService {
           if (!ack.jobId) {
             return throwError(() => new Error('Respuesta de cola invalida: falta jobId.'));
           }
+          this.registerJobAck(ack);
           return this.waitForJobResult<T>(ack.jobId);
         }
         return of(response as T);
@@ -175,6 +208,9 @@ export class EnrollmentDataService {
         }
         return matches;
       }),
+      tap((update) => {
+        this.jobStatusSubject.next(update);
+      }),
       filter((update) => {
         const isTerminal = update.status === 'completed' || update.status === 'failed';
         console.log('[EnrollmentDataService] (Job) Update recibido', update);
@@ -192,6 +228,19 @@ export class EnrollmentDataService {
         this.activeJobs.delete(jobId);
       })
     );
+  }
+
+  private registerJobAck(ack: JobAck): void {
+    this.currentJobAckSubject.next(ack);
+
+    const initialUpdate: JobUpdate = {
+      jobId: ack.jobId,
+      status: ack.status ?? 'queued',
+      queueName: ack.queueType,
+      timestamp: Date.now(),
+      estimatedTimeRemaining: undefined,
+    };
+    this.jobStatusSubject.next(initialUpdate);
   }
 
   private ensureSocket(): void {
