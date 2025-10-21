@@ -1,0 +1,224 @@
+.launcher-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  overflow: hidden;
+
+  .launcher-content {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 1200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+  }
+
+  .brand-section {
+    text-align: center;
+    color: white;
+    animation: fadeInDown 0.8s ease-out;
+
+    .brand-logo {
+      margin-bottom: 1rem;
+
+      .brand-icon {
+        font-size: 72px;
+        width: 72px;
+        height: 72px;
+        color: white;
+        filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.2));
+      }
+    }
+
+    .brand-title {
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+      letter-spacing: -0.5px;
+    }
+
+    .brand-subtitle {
+      font-size: 1.1rem;
+      margin: 0.5rem 0 0;
+      opacity: 0.95;
+      font-weight: 300;
+    }
+  }
+
+  .auth-tabs {
+    width: 100%;
+    max-width: 550px;
+    animation: fadeInUp 0.8s ease-out;
+
+    ::ng-deep {
+      .mat-mdc-tab-group {
+        background: transparent;
+      }
+
+      .mat-mdc-tab-header {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 12px 12px 0 0;
+        backdrop-filter: blur(10px);
+      }
+
+      .mat-mdc-tab-labels {
+        justify-content: space-around;
+      }
+
+      .mat-mdc-tab {
+        min-width: 0;
+        flex: 1;
+        font-weight: 600;
+        font-size: 1rem;
+        opacity: 0.7;
+        transition: all 0.3s ease;
+
+        &.mdc-tab--active {
+          opacity: 1;
+        }
+      }
+
+      .mat-mdc-tab-body-wrapper {
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 0 0 12px 12px;
+        backdrop-filter: blur(10px);
+      }
+
+      .mat-mdc-tab-body-content {
+        overflow: visible;
+      }
+    }
+  }
+
+  .background-decoration {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    z-index: 1;
+
+    .circle {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+      animation: float 20s infinite ease-in-out;
+
+      &.circle-1 {
+        width: 300px;
+        height: 300px;
+        top: -100px;
+        right: -100px;
+        animation-delay: 0s;
+      }
+
+      &.circle-2 {
+        width: 200px;
+        height: 200px;
+        bottom: -50px;
+        left: -50px;
+        animation-delay: 5s;
+      }
+
+      &.circle-3 {
+        width: 150px;
+        height: 150px;
+        top: 50%;
+        left: 10%;
+        animation-delay: 10s;
+      }
+    }
+  }
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) translateX(0);
+  }
+  25% {
+    transform: translateY(-20px) translateX(20px);
+  }
+  50% {
+    transform: translateY(-10px) translateX(-10px);
+  }
+  75% {
+    transform: translateY(-30px) translateX(10px);
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .launcher-container {
+    .brand-section {
+      .brand-logo .brand-icon {
+        font-size: 56px;
+        width: 56px;
+        height: 56px;
+      }
+
+      .brand-title {
+        font-size: 2rem;
+      }
+
+      .brand-subtitle {
+        font-size: 1rem;
+      }
+    }
+
+    .auth-tabs {
+      max-width: 100%;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .launcher-container {
+    padding: 10px;
+
+    .brand-section {
+      .brand-logo .brand-icon {
+        font-size: 48px;
+        width: 48px;
+        height: 48px;
+      }
+
+      .brand-title {
+        font-size: 1.5rem;
+      }
+    }
+
+    .launcher-content {
+      gap: 1rem;
+    }
+  }
+}

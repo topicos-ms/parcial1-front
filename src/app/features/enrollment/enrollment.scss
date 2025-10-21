@@ -1,0 +1,61 @@
+:host {
+  display: block;
+  padding: 1.5rem;
+}
+
+.enrollment-container {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.headline-icon {
+  vertical-align: middle;
+  margin-right: 0.5rem;
+}
+
+.header-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+
+.enrollment-info {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #424242;
+}
+
+.error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  margin: 1rem 0;
+  border-radius: 8px;
+  background-color: #fdecea;
+  color: #c62828;
+}
+
+.loading-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+}
+
+@media (max-width: 768px) {
+  :host {
+    padding: 1rem;
+  }
+}

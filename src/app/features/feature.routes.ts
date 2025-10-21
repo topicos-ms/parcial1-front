@@ -1,0 +1,50 @@
+import { Routes } from '@angular/router';
+import { authGuard, authChildGuard } from '../auth/guards/auth.guard';
+
+export const featureRoutes: Routes = [
+  {
+    path: '',
+    loadComponent: () => import('./layout/layout').then((m) => m.Layout),
+    canActivate: [authGuard],
+    canActivateChild: [authChildGuard],
+    children: [
+      {
+        path: '',
+        redirectTo: 'enrollment',
+        pathMatch: 'full'
+      },
+      {
+        path: 'enrollment',
+        loadComponent: () =>
+          import('./enrollment/enrollment').then((m) => m.EnrollmentPage),
+        children: [
+          {
+            path: '',
+            redirectTo: 'courses',
+            pathMatch: 'full'
+          },
+          {
+            path: 'courses',
+            loadComponent: () =>
+              import('./enrollment/pages/offered-courses/offered-courses').then((m) => m.OfferedCoursesPage)
+          },
+          {
+            path: 'schedules',
+            loadComponent: () =>
+              import('./enrollment/pages/schedules/schedules').then((m) => m.SchedulesPage)
+          },
+          {
+            path: 'status',
+            loadComponent: () =>
+              import('./enrollment/pages/enrollment-status/enrollment-status').then((m) => m.EnrollmentStatusPage)
+          }
+        ]
+      },
+      {
+        path: 'dashboard',
+        loadComponent: () =>
+          import('./dashboard/dashboard').then((m) => m.Dashboard)
+      }
+    ]
+  }
+];

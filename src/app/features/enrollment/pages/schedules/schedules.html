@@ -1,0 +1,92 @@
+<div class="schedules-container">
+  <mat-card appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon>schedule</mat-icon>
+        Seleccionar Horarios
+      </mat-card-title>
+      <mat-card-subtitle>
+        Selecciona un grupo para cada materia
+      </mat-card-subtitle>
+    </mat-card-header>
+
+    <mat-card-content>
+      @for (courseWithSections of coursesWithSections(); track courseWithSections.course.courseId; let i = $index) {
+        <div class="course-section">
+          <div class="course-header">
+            <h3>{{ courseWithSections.course.code }} - {{ courseWithSections.course.name }}</h3>
+            <mat-chip>{{ courseWithSections.course.credits }} créditos</mat-chip>
+          </div>
+
+          <mat-divider></mat-divider>
+
+          @if (courseWithSections.loading) {
+            <div class="loading-wrapper">
+              <mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner>
+              <span>Cargando grupos...</span>
+            </div>
+          }
+          @else if (courseWithSections.error) {
+            <div class="error-message">
+              <mat-icon color="warn">error</mat-icon>
+              <span>{{ courseWithSections.error }}</span>
+            </div>
+          }
+          @else if (courseWithSections.sections.length === 0) {
+            <div class="empty-message">
+              <mat-icon>info</mat-icon>
+              <span>No hay grupos disponibles para esta materia</span>
+            </div>
+          }
+          @else {
+            <mat-radio-group 
+              class="section-list"
+              [value]="courseWithSections.selectedSectionId"
+              (change)="selectSection(i, $any($event.source).value)">
+              @for (section of courseWithSections.sections; track section.id) {
+                <mat-radio-button [value]="section.id" class="section-option">
+                  <div class="section-info">
+                    <div class="section-main">
+                      <span class="group-label">Grupo {{ section.group_label }}</span>
+                      <mat-chip class="modality-chip">{{ section.modality }}</mat-chip>
+                      <mat-chip class="shift-chip">{{ section.shift }}</mat-chip>
+                    </div>
+                    <div class="section-details">
+                      <div class="detail-item">
+                        <mat-icon>schedule</mat-icon>
+                        <span>{{ formatSchedule(section) }}</span>
+                      </div>
+                      <div class="detail-item">
+                        <mat-icon>people</mat-icon>
+                        <span>Cupos: {{ section.quota_available }}/{{ section.quota_max }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </mat-radio-button>
+              }
+            </mat-radio-group>
+          }
+        </div>
+      }
+
+      <div class="actions">
+        <button mat-stroked-button (click)="goBack()" [disabled]="enrolling()">
+          <mat-icon>arrow_back</mat-icon>
+          Volver
+        </button>
+        <button 
+          mat-raised-button 
+          color="primary" 
+          (click)="enroll()"
+          [disabled]="!canEnroll() || enrolling()">
+          @if (enrolling()) {
+            <mat-progress-spinner diameter="20" mode="indeterminate"></mat-progress-spinner>
+          } @else {
+            <mat-icon>check</mat-icon>
+          }
+          Inscribir
+        </button>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

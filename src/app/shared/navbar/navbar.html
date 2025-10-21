@@ -1,0 +1,25 @@
+<mat-toolbar color="primary" class="navbar">
+  @if (icon) {
+    <button mat-icon-button type="button" aria-label="Menu" class="navbar__icon">
+      <mat-icon>{{ icon }}</mat-icon>
+    </button>
+  }
+
+  @if (title) {
+    <span class="navbar__title">{{ title }}</span>
+  }
+
+  <span class="navbar__spacer"></span>
+
+  @for (link of links; track link.path) {
+    <a
+      mat-button
+      [routerLink]="link.path"
+      routerLinkActive="navbar__link--active"
+      
+      class="navbar__link"
+    >
+      {{ link.label }}
+    </a>
+  }
+</mat-toolbar>

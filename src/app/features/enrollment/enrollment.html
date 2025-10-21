@@ -1,0 +1,59 @@
+<div class="enrollment-container">
+  <mat-card class="enrollment-header" appearance="outlined">
+    <mat-card-header>
+      <mat-card-title>
+        <mat-icon class="headline-icon">school</mat-icon>
+        Inscripción de materias
+      </mat-card-title>
+      @if (user(); as currentUser) {
+        <mat-card-subtitle>
+          Hola, {{ currentUser.firstName }} {{ currentUser.lastName || '' }}
+        </mat-card-subtitle>
+      }
+    </mat-card-header>
+    <mat-card-content>
+      <div class="header-controls">
+        <button mat-stroked-button color="primary" (click)="refresh()" [disabled]="loadingData()">
+          <mat-icon>refresh</mat-icon>
+          Actualizar
+        </button>
+      </div>
+
+      <mat-divider></mat-divider>
+
+      @if (recommendations(); as recs) {
+        <div class="enrollment-info">
+          <div class="info-item">
+            <mat-icon>person</mat-icon>
+            <span>Estudiante: <strong>{{ recs.student?.code || 'N/A' }}</strong></span>
+          </div>
+          @if (recs.targetLevel?.name) {
+            <div class="info-item">
+              <mat-icon>school</mat-icon>
+              <span>Nivel: {{ recs.targetLevel.name }}</span>
+            </div>
+          }
+          <div class="info-item">
+            <mat-icon>fact_check</mat-icon>
+            <span>{{ recs.courses?.length || 0 }} materias disponibles</span>
+          </div>
+        </div>
+      }
+    </mat-card-content>
+  </mat-card>
+
+  @if (errorMessage(); as error) {
+    <div class="error-banner">
+      <mat-icon color="warn">error</mat-icon>
+      <span>{{ error }}</span>
+    </div>
+  }
+
+  @if (loadingData()) {
+    <div class="loading-wrapper">
+      <mat-progress-spinner diameter="48" mode="indeterminate"></mat-progress-spinner>
+    </div>
+  } @else {
+    <router-outlet></router-outlet>
+  }
+</div>
