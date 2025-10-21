@@ -168,7 +168,7 @@ export class SchedulesPage implements OnInit {
     // Primero obtener el enrollment activo
     this.dataService
       .getActiveEnrollment(studentId)
-      .pipe(takeUntilDestroyed(this.destroyRef))
+      
       .subscribe({
         next: (enrollments) => {
           if (!enrollments.data || enrollments.data.length === 0) {
@@ -178,7 +178,7 @@ export class SchedulesPage implements OnInit {
               message: 'No tienes una inscripción activa',
               errorCode: 'NO_ACTIVE_ENROLLMENT'
             });
-            this.openStatusModal();
+            // Modal no se reabre: estado se mostrará en /enrollment/status
             return;
           }
 
@@ -197,7 +197,7 @@ export class SchedulesPage implements OnInit {
               message: 'No hay materias con grupos seleccionados',
               errorCode: 'NO_SECTIONS_SELECTED'
             });
-            this.openStatusModal();
+            // Modal no se reabre: estado se mostrará en /enrollment/status
             return;
           }
 
@@ -208,7 +208,7 @@ export class SchedulesPage implements OnInit {
 
           this.dataService
             .enrollBatch({ items })
-            .pipe(takeUntilDestroyed(this.destroyRef))
+            
             .subscribe({
               next: (response) => {
                 this.enrolling.set(false);
@@ -238,8 +238,7 @@ export class SchedulesPage implements OnInit {
                   });
                 }
                 
-                // Mostrar modal con el estado
-                this.openStatusModal();
+                // No reabrir modal, el resultado se refleja en /enrollment/status
               },
               error: (error) => {
                 this.enrolling.set(false);
@@ -270,8 +269,7 @@ export class SchedulesPage implements OnInit {
                   details: errorDetails
                 });
                 
-                // Mostrar modal con el error
-                this.openStatusModal();
+                // No reabrir modal, el error se refleja en /enrollment/status
               }
             });
         },
@@ -282,7 +280,7 @@ export class SchedulesPage implements OnInit {
             message: 'Error al obtener la inscripción activa',
             errorCode: 'ENROLLMENT_FETCH_ERROR'
           });
-          this.openStatusModal();
+          // No reabrir modal, el error se refleja en /enrollment/status
         }
       });
   }
