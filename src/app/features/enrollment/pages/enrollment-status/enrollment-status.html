@@ -86,10 +86,61 @@
         </div>
       </mat-card-content>
     </mat-card>
+  } @else if (processingAck()) {
+    <mat-card appearance="outlined" class="info">
+      <mat-card-header>
+        <div class="status-header">
+          <mat-icon class="info-icon">info</mat-icon>
+          <mat-card-title>Procesando solicitud de inscripción</mat-card-title>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content>
+        <mat-divider></mat-divider>
+
+        <div class="status-message">
+          <p class="main-message">{{ queueStatusLabel() }}</p>
+          @if (isWaitingForResult()) {
+            <div class="schedule-loading">
+              <mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner>
+              <p>Tu solicitud está siendo procesada por la cola...</p>
+            </div>
+          }
+        </div>
+
+        <div class="queue-status-panel">
+          <dl class="queue-status-list">
+            <div class="queue-status-item">
+              <dt>Job ID</dt>
+              <dd>{{ processingAck()?.jobId }}</dd>
+            </div>
+            <div class="queue-status-item">
+              <dt>Cola</dt>
+              <dd>{{ processingAck()?.queueType ?? 'No disponible' }}</dd>
+            </div>
+            @if (processingAck()?.estimatedTime) {
+              <div class="queue-status-item">
+                <dt>Tiempo estimado</dt>
+                <dd>{{ processingAck()?.estimatedTime }}</dd>
+              </div>
+            }
+          </dl>
+        </div>
+
+        <mat-divider></mat-divider>
+
+        <div class="status-actions">
+          <button mat-raised-button color="primary" (click)="goBack()">
+            <mat-icon>arrow_back</mat-icon>
+            Volver a Inscripción
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
   } @else {
     <div class="loading-wrapper">
       <mat-progress-spinner diameter="48" mode="indeterminate"></mat-progress-spinner>
-      <p>Cargando estado de inscripcion...</p>
+      <p>Esperando inicio de la solicitud...</p>
     </div>
   }
 </div>
