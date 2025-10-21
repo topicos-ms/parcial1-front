@@ -103,28 +103,9 @@
           @if (isWaitingForResult()) {
             <div class="schedule-loading">
               <mat-progress-spinner diameter="32" mode="indeterminate"></mat-progress-spinner>
-              <p>Tu solicitud está siendo procesada por la cola...</p>
+              <p>Estamos procesando tu solicitud...</p>
             </div>
           }
-        </div>
-
-        <div class="queue-status-panel">
-          <dl class="queue-status-list">
-            <div class="queue-status-item">
-              <dt>Job ID</dt>
-              <dd>{{ processingAck()?.jobId }}</dd>
-            </div>
-            <div class="queue-status-item">
-              <dt>Cola</dt>
-              <dd>{{ processingAck()?.queueType ?? 'No disponible' }}</dd>
-            </div>
-            @if (processingAck()?.estimatedTime) {
-              <div class="queue-status-item">
-                <dt>Tiempo estimado</dt>
-                <dd>{{ processingAck()?.estimatedTime }}</dd>
-              </div>
-            }
-          </dl>
         </div>
 
         <mat-divider></mat-divider>
